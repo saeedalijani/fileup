@@ -1,4 +1,20 @@
-(function($){
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+(function ($) {
     var default_options = {
         url: window.location.pathname + window.location.search,
         inputID: '',
@@ -14,32 +30,36 @@
         timeout: null,
         autostart: false,
         templateFile: '<div id="fileup-[INPUT_ID]-[FILE_NUM]" class="fileup-file [TYPE]">' +
-                          '<div class="fileup-preview">' +
-                              '<img src="[PREVIEW_SRC]" alt="[NAME]"/>' +
-                          '</div>' +
-                          '<div class="fileup-container">' +
-                              '<div class="fileup-description">' +
-                                    '<span class="fileup-name">[NAME]</span> (<span class="fileup-size">[SIZE_HUMAN]</span>)' +
-                              '</div>' +
-                              '<div class="fileup-controls">' +
-                                  '<span class="fileup-remove" onclick="$.fileup(\'[INPUT_ID]\', \'remove\', \'[FILE_NUM]\');" title="[REMOVE]"></span>' +
-                                  '<span class="fileup-upload" onclick="$.fileup(\'[INPUT_ID]\', \'upload\', \'[FILE_NUM]\');">[UPLOAD]</span>' +
-                                  '<span class="fileup-abort" onclick="$.fileup(\'[INPUT_ID]\', \'abort\', \'[FILE_NUM]\');" style="display:none">[ABORT]</span>' +
-                              '</div>' +
-                              '<div class="fileup-result"></div>' +
-                              '<div class="fileup-progress">' +
-                                    '<div class="fileup-progress-bar"></div>' +
-                              '</div>' +
-                          '</div>' +
-                          '<div class="fileup-clear"></div>' +
-                      '</div>',
-        onSelect: function(file) {},
-        onRemove: function(file_number, total, file) {},
-        onBeforeStart: function(file_number, xhr, file) {},
-        onStart: function(file_number, file) {},
-        onStartSystem: function(file_number, file) {
+        '<div class="fileup-preview">' +
+        '<img src="[PREVIEW_SRC]" alt="[NAME]"/>' +
+        '</div>' +
+        '<div class="fileup-container">' +
+        '<div class="fileup-description">' +
+        '<span class="fileup-name">[NAME]</span> (<span class="fileup-size">[SIZE_HUMAN]</span>)' +
+        '</div>' +
+        '<div class="fileup-controls">' +
+        '<span class="fileup-remove" onclick="$.fileup(\'[INPUT_ID]\', \'remove\', \'[FILE_NUM]\');" title="[REMOVE]"></span>' +
+        '<span class="fileup-upload" onclick="$.fileup(\'[INPUT_ID]\', \'upload\', \'[FILE_NUM]\');">[UPLOAD]</span>' +
+        '<span class="fileup-abort" onclick="$.fileup(\'[INPUT_ID]\', \'abort\', \'[FILE_NUM]\');" style="display:none">[ABORT]</span>' +
+        '</div>' +
+        '<div class="fileup-result"></div>' +
+        '<div class="fileup-progress">' +
+        '<div class="fileup-progress-bar"></div>' +
+        '</div>' +
+        '</div>' +
+        '<div class="fileup-clear"></div>' +
+        '</div>',
+        onSelect: function (file) {
+        },
+        onRemove: function (file_number, total, file) {
+        },
+        onBeforeStart: function (file_number, xhr, file) {
+        },
+        onStart: function (file_number, file) {
+        },
+        onStartSystem: function (file_number, file) {
             var options = this.fileup.options;
-            var $file   = $('#fileup-' + options.inputID + '-' + file_number);
+            var $file = $('#fileup-' + options.inputID + '-' + file_number);
             $file.find('.fileup-controls .fileup-upload').hide();
             $file.find('.fileup-controls .fileup-abort').show();
             $file.find('.fileup-result')
@@ -47,24 +67,26 @@
                 .removeClass('fileup-success')
                 .text('');
         },
-        onProgress: function(file_number, ProgressEvent, file) {
+        onProgress: function (file_number, ProgressEvent, file) {
             if (event.lengthComputable) {
                 var options = this.fileup.options;
                 var percent = Math.ceil(ProgressEvent.loaded / ProgressEvent.total * 100);
                 $('#fileup-' + options.inputID + '-' + file_number + ' .fileup-progress-bar').css('width', percent + "%");
             }
         },
-        onSuccess: function(file_number, response, file) {},
-        onError: function(event, file, file_number, response) {},
-        onErrorSystem: function(event, file, file_number) {
+        onSuccess: function (file_number, response, file) {
+        },
+        onError: function (event, file, file_number, response) {
+        },
+        onErrorSystem: function (event, file, file_number) {
             var options = this.fileup.options;
-            switch(event) {
+            switch (event) {
                 case 'files_limit':
                     var message = i18n[options.lang].errorFilesLimit;
                     alert(message.replace(/%filesLimit%/g, options.filesLimit));
                     break;
                 case 'size_limit':
-                    var size    = formatHuman(options.sizeLimit);
+                    var size = formatHuman(options.sizeLimit);
                     var message = i18n[options.lang].errorSizeLimit;
                     message = message.replace(/%sizeLimit%/g, size);
                     message = message.replace(/%fileName%/g, file.name);
@@ -88,10 +110,11 @@
                     break;
             }
         },
-        onAbort: function(file_number, file) {},
-        onAbortSystem: function(file_number, file) {
+        onAbort: function (file_number, file) {
+        },
+        onAbortSystem: function (file_number, file) {
             var options = this.fileup.options;
-            var $file   = $('#fileup-' + options.inputID + '-' + file_number);
+            var $file = $('#fileup-' + options.inputID + '-' + file_number);
             $file.find('.fileup-controls .fileup-abort').hide();
             $file.find('.fileup-controls .fileup-upload').show();
             $file.find('.fileup-result')
@@ -99,10 +122,11 @@
                 .removeClass('fileup-success')
                 .text('');
         },
-        onTimeout: function(file_number, file) {},
-        onTimeoutSystem: function(file_number, file) {
+        onTimeout: function (file_number, file) {
+        },
+        onTimeoutSystem: function (file_number, file) {
             var options = this.fileup.options;
-            var $file   = $('#fileup-' + options.inputID + '-' + file_number);
+            var $file = $('#fileup-' + options.inputID + '-' + file_number);
             $file.find('.fileup-controls .fileup-abort').hide();
             $file.find('.fileup-controls .fileup-upload').show();
             $file.find('.fileup-result')
@@ -110,10 +134,11 @@
                 .removeClass('fileup-success')
                 .text('');
         },
-        onFinish: function(file_number, file) {},
-        onSuccessSystem: function(response, file_number, file) {
+        onFinish: function (file_number, file) {
+        },
+        onSuccessSystem: function (response, file_number, file) {
             var options = this.fileup.options;
-            var $file   = $('#fileup-' + options.inputID + '-' + file_number);
+            var $file = $('#fileup-' + options.inputID + '-' + file_number);
             $file.find('.fileup-controls .fileup-abort').hide();
             $file.find('.fileup-controls .fileup-upload').hide();
             $file.find('.fileup-result')
@@ -121,14 +146,16 @@
                 .addClass('fileup-success')
                 .text(i18n[options.lang].complete);
         },
-        onDragOver: function(event) {
+        onDragOver: function (event) {
             event.stopPropagation();
             event.preventDefault();
             event.dataTransfer.dropEffect = 'copy';
         },
-        onDragLeave: function(event) {},
-        onDragEnd: function(event) {},
-        onDragEnter: function(event) {
+        onDragLeave: function (event) {
+        },
+        onDragEnd: function (event) {
+        },
+        onDragEnter: function (event) {
             event.stopPropagation();
             event.preventDefault();
             event.dataTransfer.dropEffect = 'copy';
@@ -137,15 +164,15 @@
 
 
     var events = {
-        addEvent : function(input, name, callback) {
+        addEvent: function (input, name, callback) {
             var stack = input.fileup.events[name] || [];
             stack.push(callback);
             input.fileup.events[name] = stack;
         },
-        removeEvents : function(input, name) {
+        removeEvents: function (input, name) {
             input.fileup.events[name] = [];
         },
-        callEvent : function(input, name, args) {
+        callEvent: function (input, name, args) {
             var result = true,
                 event_result;
 
@@ -174,20 +201,59 @@
 
 
     var eventRegister = {
-        input :       {},
-        select :      function(callback) {events.addEvent(eventRegister.input, 'select',      callback); return eventRegister;},
-        remove :      function(callback) {events.addEvent(eventRegister.input, 'remove',      callback); return eventRegister;},
-        beforeStart : function(callback) {events.addEvent(eventRegister.input, 'beforeStart', callback); return eventRegister;},
-        start :       function(callback) {events.addEvent(eventRegister.input, 'start',       callback); return eventRegister;},
-        progress :    function(callback) {events.addEvent(eventRegister.input, 'progress',    callback); return eventRegister;},
-        success :     function(callback) {events.addEvent(eventRegister.input, 'success',     callback); return eventRegister;},
-        error :       function(callback) {events.addEvent(eventRegister.input, 'error',       callback); return eventRegister;},
-        abort :       function(callback) {events.addEvent(eventRegister.input, 'abort',       callback); return eventRegister;},
-        timeout :     function(callback) {events.addEvent(eventRegister.input, 'timeout',     callback); return eventRegister;},
-        dragOver :    function(callback) {events.addEvent(eventRegister.input, 'dragOver',    callback); return eventRegister;},
-        dragLeave :   function(callback) {events.addEvent(eventRegister.input, 'dragLeave',   callback); return eventRegister;},
-        dragEnd :     function(callback) {events.addEvent(eventRegister.input, 'dragEnd',     callback); return eventRegister;},
-        dragEnter :   function(callback) {events.addEvent(eventRegister.input, 'dragEnter',   callback); return eventRegister;}
+        input: {},
+        select: function (callback) {
+            events.addEvent(eventRegister.input, 'select', callback);
+            return eventRegister;
+        },
+        remove: function (callback) {
+            events.addEvent(eventRegister.input, 'remove', callback);
+            return eventRegister;
+        },
+        beforeStart: function (callback) {
+            events.addEvent(eventRegister.input, 'beforeStart', callback);
+            return eventRegister;
+        },
+        start: function (callback) {
+            events.addEvent(eventRegister.input, 'start', callback);
+            return eventRegister;
+        },
+        progress: function (callback) {
+            events.addEvent(eventRegister.input, 'progress', callback);
+            return eventRegister;
+        },
+        success: function (callback) {
+            events.addEvent(eventRegister.input, 'success', callback);
+            return eventRegister;
+        },
+        error: function (callback) {
+            events.addEvent(eventRegister.input, 'error', callback);
+            return eventRegister;
+        },
+        abort: function (callback) {
+            events.addEvent(eventRegister.input, 'abort', callback);
+            return eventRegister;
+        },
+        timeout: function (callback) {
+            events.addEvent(eventRegister.input, 'timeout', callback);
+            return eventRegister;
+        },
+        dragOver: function (callback) {
+            events.addEvent(eventRegister.input, 'dragOver', callback);
+            return eventRegister;
+        },
+        dragLeave: function (callback) {
+            events.addEvent(eventRegister.input, 'dragLeave', callback);
+            return eventRegister;
+        },
+        dragEnd: function (callback) {
+            events.addEvent(eventRegister.input, 'dragEnd', callback);
+            return eventRegister;
+        },
+        dragEnter: function (callback) {
+            events.addEvent(eventRegister.input, 'dragEnter', callback);
+            return eventRegister;
+        }
     };
 
 
@@ -224,22 +290,22 @@
     function init(param1) {
 
         var options = $.extend(false, default_options, param1);
-        var input   = document.getElementById(options.inputID);
+        var input = document.getElementById(options.inputID);
 
         if (input && input.type === 'file') {
             if (options.dropzoneID) {
                 var dropZone = document.getElementById(options.dropzoneID);
                 if (dropZone) {
-                    dropZone.addEventListener('dragover',  function(event) {
+                    dropZone.addEventListener('dragover', function (event) {
                         events.callEvent(input, 'dragOver', [event]);
                     });
-                    dropZone.addEventListener('dragleave', function(event) {
+                    dropZone.addEventListener('dragleave', function (event) {
                         events.callEvent(input, 'dragLeave', [event]);
                     });
-                    dropZone.addEventListener('dragenter', function(event) {
+                    dropZone.addEventListener('dragenter', function (event) {
                         events.callEvent(input, 'dragEnter', [event]);
                     });
-                    dropZone.addEventListener('drop',      dropFiles);
+                    dropZone.addEventListener('drop', dropFiles);
                     dropZone.fileup = {
                         input: input
                     };
@@ -253,24 +319,24 @@
                 events: {}
             };
 
-            events.addEvent(input, 'select',      options.onSelect);
-            events.addEvent(input, 'remove',      options.onRemove);
+            events.addEvent(input, 'select', options.onSelect);
+            events.addEvent(input, 'remove', options.onRemove);
             events.addEvent(input, 'beforeStart', options.onBeforeStart);
-            events.addEvent(input, 'start',       options.onStartSystem);
-            events.addEvent(input, 'start',       options.onStart);
-            events.addEvent(input, 'progress',    options.onProgress);
-            events.addEvent(input, 'success',     options.onSuccessSystem);
-            events.addEvent(input, 'success',     options.onSuccess);
-            events.addEvent(input, 'error',       options.onErrorSystem);
-            events.addEvent(input, 'error',       options.onError);
-            events.addEvent(input, 'abort',       options.onAbortSystem);
-            events.addEvent(input, 'abort',       options.onAbort);
-            events.addEvent(input, 'timeout',     options.onTimeoutSystem);
-            events.addEvent(input, 'timeout',     options.onTimeout);
-            events.addEvent(input, 'dragOver',    options.onDragOver);
-            events.addEvent(input, 'dragLeave',   options.onDragLeave);
-            events.addEvent(input, 'dragEnd',     options.onDragEnd);
-            events.addEvent(input, 'dragEnter',   options.onDragEnter);
+            events.addEvent(input, 'start', options.onStartSystem);
+            events.addEvent(input, 'start', options.onStart);
+            events.addEvent(input, 'progress', options.onProgress);
+            events.addEvent(input, 'success', options.onSuccessSystem);
+            events.addEvent(input, 'success', options.onSuccess);
+            events.addEvent(input, 'error', options.onErrorSystem);
+            events.addEvent(input, 'error', options.onError);
+            events.addEvent(input, 'abort', options.onAbortSystem);
+            events.addEvent(input, 'abort', options.onAbort);
+            events.addEvent(input, 'timeout', options.onTimeoutSystem);
+            events.addEvent(input, 'timeout', options.onTimeout);
+            events.addEvent(input, 'dragOver', options.onDragOver);
+            events.addEvent(input, 'dragLeave', options.onDragLeave);
+            events.addEvent(input, 'dragEnd', options.onDragEnd);
+            events.addEvent(input, 'dragEnter', options.onDragEnter);
 
             $(input).on('change', appendFiles);
 
@@ -279,13 +345,13 @@
                 for (var i = 0; i < options.files.length; i++) {
 
                     var tpl = options.templateFile;
-                    tpl = tpl.replace(/\[INPUT_ID\]/g,   options.inputID);
-                    tpl = tpl.replace(/\[FILE_NUM\]/g,   input.fileup.nextID);
-                    tpl = tpl.replace(/\[NAME\]/g,       options.files[i].name);
+                    tpl = tpl.replace(/\[INPUT_ID\]/g, options.inputID);
+                    tpl = tpl.replace(/\[FILE_NUM\]/g, input.fileup.nextID);
+                    tpl = tpl.replace(/\[NAME\]/g, options.files[i].name);
                     tpl = tpl.replace(/\[SIZE_HUMAN\]/g, formatHuman(options.files[i].size));
-                    tpl = tpl.replace(/\[UPLOAD\]/g,     i18n[options.lang].upload);
-                    tpl = tpl.replace(/\[REMOVE\]/g,     i18n[options.lang].remove);
-                    tpl = tpl.replace(/\[ABORT\]/g,      i18n[options.lang].abort);
+                    tpl = tpl.replace(/\[UPLOAD\]/g, i18n[options.lang].upload);
+                    tpl = tpl.replace(/\[REMOVE\]/g, i18n[options.lang].remove);
+                    tpl = tpl.replace(/\[ABORT\]/g, i18n[options.lang].abort);
 
                     input.fileup.files[input.fileup.nextID] = {
                         xhr: null,
@@ -296,11 +362,11 @@
 
                     if (options.files[i].previewUrl) {
                         tpl = tpl.replace(/\[PREVIEW_SRC\]/g, options.files[i].previewUrl);
-                        tpl = tpl.replace(/\[TYPE\]/g,        'fileup-image');
+                        tpl = tpl.replace(/\[TYPE\]/g, 'fileup-image');
 
                     } else {
                         tpl = tpl.replace(/\[PREVIEW_SRC\]/g, "");
-                        tpl = tpl.replace(/\[TYPE\]/g,        'fileup-doc');
+                        tpl = tpl.replace(/\[TYPE\]/g, 'fileup-doc');
                     }
 
                     $('#' + options.queueID).append(tpl)
@@ -311,7 +377,7 @@
                         var $name = $('#fileup-' + options.inputID + '-' + input.fileup.nextID).find('.fileup-name');
                         if ($name[0]) {
                             $name.replaceWith('<a href="' + options.files[i].downloadUrl + '" class="fileup-name" ' +
-                                                 'download="' + options.files[i].name + '">' + options.files[i].name + '</a>');
+                                'download="' + options.files[i].name + '">' + options.files[i].name + '</a>');
                         }
                     }
 
@@ -330,9 +396,9 @@
         event.preventDefault();
         event.stopPropagation();
 
-        var input   = event.target.fileup.input;
+        var input = event.target.fileup.input;
         var options = input.fileup.options;
-        var files   = event.target.files || event.dataTransfer.files;
+        var files = event.target.files || event.dataTransfer.files;
 
         if (files.length) {
             for (var i = 0; i < files.length; i++) {
@@ -362,7 +428,7 @@
                                 }
                             }
                         }
-                        if ( ! is_accept) {
+                        if (!is_accept) {
                             events.callEvent(input, 'error', ['file_type', file]);
                             continue;
                         }
@@ -389,10 +455,10 @@
     function appendFiles() {
 
         if (this.files.length) {
-            var options  = this.fileup.options;
+            var options = this.fileup.options;
             var multiple = $(this).is("[multiple]");
 
-            if ( ! multiple) {
+            if (!multiple) {
                 if (events.callEvent(this, 'remove', ['*', '1', this.files[0]])) {
                     $('#' + options.queueID).empty();
                     this.fileup.files = {};
@@ -429,7 +495,7 @@
                                 }
                             }
                         }
-                        if ( ! is_accept) {
+                        if (!is_accept) {
                             events.callEvent(this, 'error', ['file_type', file]);
                             continue;
                         }
@@ -476,15 +542,15 @@
         }
 
         var tpl = options.templateFile;
-        tpl = tpl.replace(/\[INPUT_ID\]/g,   options.inputID);
-        tpl = tpl.replace(/\[FILE_NUM\]/g,   input.fileup.nextID);
-        tpl = tpl.replace(/\[NAME\]/g,       getFileName(file));
-        tpl = tpl.replace(/\[MTYPE\]/g,      file.type);
-        tpl = tpl.replace(/\[SIZE\]/g,       getFileSize(file));
+        tpl = tpl.replace(/\[INPUT_ID\]/g, options.inputID);
+        tpl = tpl.replace(/\[FILE_NUM\]/g, input.fileup.nextID);
+        tpl = tpl.replace(/\[NAME\]/g, getFileName(file));
+        tpl = tpl.replace(/\[MTYPE\]/g, file.type);
+        tpl = tpl.replace(/\[SIZE\]/g, getFileSize(file));
         tpl = tpl.replace(/\[SIZE_HUMAN\]/g, formatHuman(getFileSize(file)));
-        tpl = tpl.replace(/\[UPLOAD\]/g,     i18n[options.lang].upload);
-        tpl = tpl.replace(/\[REMOVE\]/g,     i18n[options.lang].remove);
-        tpl = tpl.replace(/\[ABORT\]/g,      i18n[options.lang].abort);
+        tpl = tpl.replace(/\[UPLOAD\]/g, i18n[options.lang].upload);
+        tpl = tpl.replace(/\[REMOVE\]/g, i18n[options.lang].remove);
+        tpl = tpl.replace(/\[ABORT\]/g, i18n[options.lang].abort);
 
         var fileContainer = {
             xhr: xhr,
@@ -585,28 +651,28 @@
      */
     function uploadFile(input, fileContainer) {
 
-        var options     = input.fileup.options;
+        var options = input.fileup.options;
         var file_number = fileContainer.file_number;
-        var file        = fileContainer.file;
-        var xhr         = fileContainer.xhr;
+        var file = fileContainer.file;
+        var xhr = fileContainer.xhr;
 
         if (typeof options.timeout === 'number') {
             xhr.timeout = options.timeout;
         }
 
         // запрос начат
-        xhr.onloadstart = function() {
+        xhr.onloadstart = function () {
             fileContainer.status = 'loading';
             events.callEvent(input, 'start', [file_number, file]);
         };
 
         // браузер получил очередной пакет данных
-        xhr.upload.onprogress = function(ProgressEvent) {
+        xhr.upload.onprogress = function (ProgressEvent) {
             events.callEvent(input, 'progress', [file_number, ProgressEvent, file]);
         };
 
         // запрос был успешно (без ошибок) завершён
-        xhr.onload = function() {
+        xhr.onload = function () {
             fileContainer.status = 'loaded';
 
             if (xhr.status === 200) {
@@ -617,31 +683,32 @@
         };
 
         // запрос был завершён (успешно или неуспешно)
-        xhr.onloadend = function() {
+        xhr.onloadend = function () {
             events.callEvent(input, 'finish', [file_number, file]);
         };
 
         // запрос был отменён вызовом xhr.abort()
-        xhr.onabort = function() {
+        xhr.onabort = function () {
             fileContainer.status = 'stand_by';
             events.callEvent(input, 'abort', [file_number, file]);
         };
 
         // запрос был прекращён по таймауту
-        xhr.ontimeout = function() {
+        xhr.ontimeout = function () {
             fileContainer.status = 'stand_by';
             events.callEvent(input, 'timeout', [file_number, file]);
         };
 
         // произошла ошибка
-        xhr.onerror = function(event) {
+        xhr.onerror = function (event) {
             fileContainer.status = 'stand_by';
             events.callEvent(input, 'error', ['error_load', file, file_number, event]);
         };
 
         xhr.open(options.method, options.url, true);
-        xhr.setRequestHeader('Cache-Control',    'no-cache');
+        xhr.setRequestHeader('Cache-Control', 'no-cache');
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
 
 
         events.callEvent(input, 'beforeStart', [xhr, file_number, file]);
@@ -651,7 +718,7 @@
             formData.append(options.fieldName, file);
 
             if (Object.keys(options.extraFields).length) {
-                $.each(options.extraFields, function(name, value){
+                $.each(options.extraFields, function (name, value) {
                     formData.append(name, value);
                 });
             }
@@ -665,14 +732,13 @@
     }
 
 
-
     var methods = {
-        upload: function(inputID, file_number) {
+        upload: function (inputID, file_number) {
             var input = document.getElementById(inputID);
 
             if (input && input.type === 'file' && typeof input.fileup === 'object') {
                 if (file_number === '*') {
-                    $.each(input.fileup.files, function(key, fileContainer) {
+                    $.each(input.fileup.files, function (key, fileContainer) {
                         if (fileContainer.status === 'stand_by') {
                             uploadFile(input, fileContainer);
                         }
@@ -684,12 +750,12 @@
             }
         },
 
-        remove: function(inputID, file_number) {
+        remove: function (inputID, file_number) {
             var input = document.getElementById(inputID);
 
             if (input && input.type === 'file' && typeof input.fileup === 'object') {
                 var options = input.fileup.options;
-                var total   = Object.keys(input.fileup.files).length;
+                var total = Object.keys(input.fileup.files).length;
 
                 if (file_number === '*') {
 
@@ -697,7 +763,7 @@
                         return;
                     }
                     input.fileup.files = {};
-                    $('[id^=fileup-' + inputID + '-]').fadeOut('fast', function(){
+                    $('[id^=fileup-' + inputID + '-]').fadeOut('fast', function () {
                         $(this).remove();
                     });
 
@@ -707,14 +773,14 @@
                     }
 
                     delete input.fileup.files[file_number];
-                    $('#fileup-' + inputID + '-' + file_number).fadeOut('fast', function(){
+                    $('#fileup-' + inputID + '-' + file_number).fadeOut('fast', function () {
                         $(this).remove();
                     });
                 }
             }
         },
 
-        removeEvents: function(inputID, name) {
+        removeEvents: function (inputID, name) {
             var input = document.getElementById(inputID);
 
             if (input && input.type === 'file' && typeof input.fileup === 'object') {
@@ -722,12 +788,12 @@
             }
         },
 
-        abort: function(inputID, file_number) {
+        abort: function (inputID, file_number) {
             var input = document.getElementById(inputID);
 
             if (input && input.type === 'file' && typeof input.fileup === 'object') {
                 if (file_number === '*') {
-                    $.each(input.fileup.files, function(key, fileContainer) {
+                    $.each(input.fileup.files, function (key, fileContainer) {
                         fileContainer.xhr.abort();
                     });
 
@@ -745,8 +811,8 @@
      * @param {string|int}    param3 File number
      * @returns {object}
      */
-    $.fileup = function(param1, param2, param3) {
-        if ( typeof param1 === 'object' ) {
+    $.fileup = function (param1, param2, param3) {
+        if (typeof param1 === 'object') {
             init(param1);
 
             var input = document.getElementById(param1.inputID);
@@ -755,13 +821,13 @@
                 return eventRegister;
             }
 
-        } else if ( typeof param1 === 'string' &&
+        } else if (typeof param1 === 'string' &&
             typeof param2 === 'string' &&
             typeof methods[param2] == 'function'
         ) {
             methods[param2](param1, param3);
 
-        } else if ( typeof param1 === 'string' &&
+        } else if (typeof param1 === 'string' &&
             typeof param2 === 'undefined' &&
             typeof param3 === 'undefined'
         ) {
@@ -772,7 +838,7 @@
             }
 
         } else {
-            $.error( 'Unknown method ' +  param1 );
+            $.error('Unknown method ' + param1);
         }
     };
 })(jQuery);
